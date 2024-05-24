@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    /* ...原有的样式代码... */
+@function randomNum($max, $min: 0, $u: 1) {
+	@return ($min + random($max)) * $u;
+}
+
+@function shadowSet($n, $size) {
+    $shadow : 0 0 0 0 #fff;
+    
+    @for $i from 0 through $n { 
+        $x: randomNum(350);
+        $y: randomNum(500);
+        $scale: randomNum($size) / 10;
+        
+        $shadow: $shadow, #{$x}px #{$y}px 0 #{$scale}px rgba(255, 255, 255, .8);
+    }
+    
+    @return $shadow;
+}
+
+body,
+html {
+    width: 100%;
+    height: 100%;
+    display: flex;
+}
+
+.g-wrap {
+    position: relative;
+    margin: auto;
+    width: 350px;
+    height: 500px;
+    background: #0b1a3a;
+    overflow: hidden;
+    
+    &::before {
+        content: "";
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        border-radius: 50%;
+        box-shadow: shadowSet(100, 6);
+    }
+}
+
+.g-aurora {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 200px;
+
+    &::before {
+        content: "";
+        position: absolute;
+        right: 0;
+        top: 0;
+        width: 400px;
+        height: 300px;
+        background: #fff;
+        background: radial-gradient(
+            circle at 100% 100%,
+            transparent 45%,
+            #bd63c1 55%,
+            #53e5a6 65%,
+            transparent 85%
+        );
+        box-shadow: inset 0px 0 30px 0 #0b1a3a;
+        filter: url(#wave);
+        mix-blend-mode: color-dodge;
+        transform: rotate(45deg) scaleX(1.4);
+    }
+}
+
+@keyframes bmove {
+    from {
+        transform: translateZ(10px) translateY(0);
+    }
+    to {
+        transform: translateZ(10px) translateY(-80px);
+    }
+}
+
+@keyframes cmove {
+    from {
+        transform: translateZ(-5px) translateY(0);
+    }
+    to {
+        transform: translateZ(-5px) translateY(80px);
+    }
+}
+
+svg {
+    width: 0;
+    height: 0;
+}   
+    
+
+    .star {
+      position: absolute;
+      width: 2px;
+      height: 2px;
+      background: #fff;
+      border-radius: 50%;
+    }
+  </style>
+</head>
+<body>
+  <div class="g-wrap">
+    <div class="g-aurora"></div>
+  </div>
+  <svg id='blob' version='1.1' xmlns='http://www.w3.org/2000/svg'>
+    <defs>
+        <filter id='wave'>
+            <feturbulence basefrequency='0.00510 0.01099' id='turbulence' numoctaves='3' result='noise' seed='10' />
+            <fedisplacementmap id='displacement' in2='noise' in='SourceGraphic' scale='96' />
+        </filter>
+    </defs>
+  </svg>
+  <script>
+    function createStar() {
+      const star = document.createElement('div');
+      star.classList.add('star');
+      star.style.top = `${Math.random() * 500}px`;
+      star.style.left = `${Math.random() * 350}px`;
+      return star;
+    }
+
+    function addStars(num) {
+      const container = document.querySelector('.g-wrap');
+      for (let i = 0; i < num; i++) {
+        container.appendChild(createStar());
+      }
+    }
+
+    addStars(100); // 添加100个星星
+
+    var filter = document.querySelector("#turbulence");
+    var frames = 0;
+    var rad = Math.PI / 180;
+
+    function freqAnimation() {
+      bfx = 0.005;
+      bfy = 0.005;
+      frames += .5
+      bfx += 0.0025 * Math.cos(frames * rad);
+      bfy += 0.0025 * Math.sin(frames * rad);
+
+      bf = bfx.toString() + ' ' + bfy.toString();
+      filter.setAttributeNS(null, 'baseFrequency', bf);
+      window.requestAnimationFrame(freqAnimation);
+    }
+
+    window.requestAnimationFrame(freqAnimation);
+  </script>
+</body>
+</html>
